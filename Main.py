@@ -146,8 +146,7 @@ def main():
         train_loss_avg[-1] /= num_batches
         print(f"Epoch [{epoch+1} / {args.epochs}] average reconstruction error: {train_loss_avg[-1]}")
         train_steps = len(train_loader) * (epoch + 1)
-        # wandb.log({"Average Reconstruction Error": {train_loss_avg}}, step=train_steps)
-        wandb.log({"Average Reconstruction Error": train_loss_avg}, step=train_steps)
+        wandb.log({"Average Reconstruction Error": train_loss_avg[-1]}, step=train_steps)
 
     # Set to evaluation mode
     vae.eval()
@@ -171,7 +170,6 @@ def main():
     test_loss_avg /= num_batches
     print(f"Average reconstruction error: {test_loss_avg}")
     train_steps = len(train_loader) * (epoch + 1)
-    # wandb.log({"Average Reconstruction Error" "Train": {train_loss_avg}, "Test": test_loss_avg}, step=train_steps)
     wandb.log({"Test Average Reconstruction Error": test_loss_avg}, step=train_steps)
 
     ################################# Reconstruction Visualisation #####################################################
@@ -190,8 +188,8 @@ def main():
         img = to_img(img)
         npimg = img.numpy()
         plt.imshow(np.transpose(npimg, (1, 2, 0)))
-        plt.savefig("Original_Image", bbox_inches='tight')
-        wandb.save('Original_Image.png')
+        # plt.savefig("Original_Image", bbox_inches='tight')
+        # wandb.save('Original_Image.png')
 
     def visualise_output(images, model):
 
@@ -212,6 +210,8 @@ def main():
     print("Original Image")
     show_image(torchvision.utils.make_grid(images[1: 50], 10, 5))
     plt.show()
+    plt.savefig("Original_Image", bbox_inches='tight')
+    wandb.save('Original_Image.png')
 
     # Reconstruct and visualise the images using the VAE
     print("VAE Reconstruction")
