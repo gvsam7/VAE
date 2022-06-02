@@ -20,14 +20,16 @@ from torchvision.datasets import MNIST, FashionMNIST, CIFAR10, STL10
 from torch.utils.data import DataLoader
 import argparse
 from models.VAE import VAE
+from torchsummary import summary
+import wandb
 
 
 def arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", type=int, default=10)
-    parser.add_argument("--latent_dims", type=int, default=10)
-    parser.add_argument("--batch_size", type=int, default=128)
-    parser.add_argument("--capacity", type=int, default=64)
+    parser.add_argument("--latent_dims", type=int, default=12)
+    parser.add_argument("--batch_size", type=int, default=32)
+    parser.add_argument("--capacity", type=int, default=32)
     parser.add_argument("--learning_rate", type=int, default=1e-3)
     parser.add_argument("--variational_beta", type=int, default=1)
     parser.add_argument("--color_channels", type=int, default=1)
@@ -42,6 +44,7 @@ def arguments():
 def main():
 
     args = arguments()
+    wandb.init(entity="predictive-analytics-lab", project="VAE", config=args)
 
     c = args.capacity
     latent_dims = args.latent_dims
@@ -101,6 +104,9 @@ def main():
     num_params = sum(p.numel() for p in vae.parameters() if p.requires_grad)
     print(f"Number of parameters: {num_params}")
 
+    summary(vae.encoder.features, (3, 32, 32))
+    summary(vae.decoder.dec, (512, 4, 4))
+
     optimizer = optim.Adam(params=vae.parameters(), lr=args.learning_rate)
 
     # set to training mode
@@ -120,7 +126,7 @@ def main():
             image_batch_recon, latent_mu, latent_logvar = vae(image_batch)
 
             # Reconstruction Error
-            loss = VAE.vae_loss(image_batch_recon, image_batch, latent_mu, latent_logvar, dataset)
+            loss = VAE.vae_loss(image_batch_recon, image_batch, latent_mu, latent_logvar)
 
             # Backpropagation
             optimizer.zero_grad()
@@ -137,6 +143,8 @@ def main():
 
         train_loss_avg[-1] /= num_batches
         print(f"Epoch [{epoch+1} / {args.epochs}] average reconstruction error: {train_loss_avg[-1]}")
+        # train_steps = len(train_loader) * (epoch + 1)
+        # wandb.log({"Average Reconstruction Error": {train_loss_avg}}, step=train_steps)
 
     # Set to evaluation mode
     vae.eval()
@@ -159,6 +167,8 @@ def main():
 
     test_loss_avg /= num_batches
     print(f"Average reconstruction error: {test_loss_avg}")
+    # train_steps = len(train_loader) * (epoch + 1)
+    # wandb.log({"Average Reconstruction Error" "Train": {train_loss_avg}, "Test": test_loss_avg}, step=train_steps)
 
     ################################# Reconstruction Visualisation #####################################################
     vae.eval()
@@ -173,14 +183,18 @@ def main():
         return x
 
     def show_image(img):
+        fig = plt.figure(figsize=(10, 10))
+        ax = fig.add_subplot(111)
         img = to_img(img)
         npimg = img.numpy()
         plt.imshow(np.transpose(npimg, (1, 2, 0)))
+        plt.savefig("Original_Image", bbox_inches='tight')
 
     def visualise_output(images, model):
 
         with torch.no_grad():
-
+            fig = plt.figure(figsize=(10, 10))
+            ax = fig.add_subplot(111)
             images = images.to(device)
             images, _, _ = model(images)
             images = images.cpu()
@@ -188,6 +202,7 @@ def main():
             np_imagegrid = torchvision.utils.make_grid(images[1: 50], 10, 5).numpy()
             plt.imshow(np.transpose(np_imagegrid, (1, 2, 0)))
             plt.show()
+            plt.savefig("VAE_Reconstruction", bbox_inches='tight')
 
     images, labels = iter(test_loader).next()
 
@@ -195,10 +210,64 @@ def main():
     print("Original Image")
     show_image(torchvision.utils.make_grid(images[1: 50], 10, 5))
     plt.show()
+    wandb.save('OriginalImage.png')
 
     # Reconstruct and visualise the images using the VAE
     print("VAE Reconstruction")
     visualise_output(images, vae)
+    wandb.save('VAE_Reconstruction.PNG')
+
+    # Interpolate in Latent Space
+    def interpolation(lambda1, model, img1, img2):
+
+        with torch.no_grad():
+            # latent vector of first image
+            img1 = img1.to(device)
+            latent_1, _ = model.encoder(img1)
+
+            # latent vector of second image
+            img2 = img2.to(device)
+            latent_2, _ = model.encoder(img2)
+
+            # interpolation of the two latent vectors
+            inter_latent = lambda1 * latent_1 + (1 - lambda1) * latent_2
+
+            # reconstruct interpolated image
+            inter_image = model.decoder(inter_latent)
+            inter_image = inter_image.cpu()
+
+            return inter_image
+
+    # sort part of test set by digit
+    digits = [[] for _ in range(10)]
+    for img_batch, label_batch in test_loader:
+        for i in range(img_batch.size(0)):
+            digits[label_batch[i]].append(img_batch[i:i + 1])
+        if sum(len(d) for d in digits) >= 1000:
+            break;
+
+    # interpolation lambdas
+    lambda_range = np.linspace(0, 1, 10)
+
+    fig, axs = plt.subplots(2, 5, figsize=(15, 6))
+    fig.subplots_adjust(hspace=.5, wspace=.001)
+    axs = axs.ravel()
+
+    for ind, l in enumerate(lambda_range):
+        inter_image = interpolation(float(l), vae, digits[7][0], digits[1][0])
+
+        inter_image = to_img(inter_image)
+
+        image = inter_image.numpy()
+
+        axs[ind].imshow(image[0, 0, :, :], cmap='gray')
+        axs[ind].set_title('lambda_val=' + str(round(l, 1)))
+    plt.savefig("Interpolate_in_Latent Space", bbox_inches='tight')
+    plt.show()
+    wandb.save('Interpolate_in_Latent Space.PNG')
+
+    # Show 2D Latent Space
+
 
 
 if __name__ == "__main__":
