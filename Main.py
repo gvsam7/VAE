@@ -183,18 +183,15 @@ def main():
         return x
 
     def show_image(img):
-        fig = plt.figure(figsize=(10, 10))
-        ax = fig.add_subplot(111)
         img = to_img(img)
         npimg = img.numpy()
         plt.imshow(np.transpose(npimg, (1, 2, 0)))
         plt.savefig("Original_Image", bbox_inches='tight')
+        wandb.save('Original_Image.png')
 
     def visualise_output(images, model):
 
         with torch.no_grad():
-            # fig = plt.figure(figsize=(10, 10))
-            # ax = fig.add_subplot(111)
             images = images.to(device)
             images, _, _ = model(images)
             images = images.cpu()
@@ -211,12 +208,10 @@ def main():
     print("Original Image")
     show_image(torchvision.utils.make_grid(images[1: 50], 10, 5))
     plt.show()
-    wandb.save('OriginalImage.png')
 
     # Reconstruct and visualise the images using the VAE
     print("VAE Reconstruction")
     visualise_output(images, vae)
-    wandb.save('VAE_Reconstruction.PNG')
 
     # Interpolate in Latent Space
     def interpolation(lambda1, model, img1, img2):
