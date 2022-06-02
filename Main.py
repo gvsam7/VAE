@@ -262,6 +262,22 @@ def main():
     plt.savefig("Interpolate_in_Latent_Space", bbox_inches='tight')
     wandb.save('Interpolate_in_Latent_Space.png')
 
+    # Sample Latent Vector from Prior (VAE as Generator)
+    with torch.no_grad():
+
+        # sample latent vectors from the normal distribution
+        latent = torch.randn(128, latent_dims, device=device)
+
+        # reconstruct images from the latent vectors
+        img_recon = vae.decoder(latent)
+        img_recon = img_recon.cpu()
+
+        fig, ax = plt.subplots(figsize=(5, 5))
+        show_image(torchvision.utils.make_grid(img_recon.data[:100], 10, 5))
+        plt.show()
+        plt.savefig("Sample_Latent_Vector_from_Prior.png", bbox_inches='tight')
+        wandb.save('Sample_Latent_Vector_from_Prior.png')
+
     # Show 2D Latent Space
     # load a network that was trained with a 2d latent space
     if latent_dims != 12:
