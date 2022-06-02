@@ -17,6 +17,35 @@ class EncoderLayer(nn.Module):
         return self.activation(self.bn(self.conv(x)))
 
 
+class Conv1(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size, padding, stride):
+        super(Conv1, self).__init__()
+        self.convlayer = nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, padding=padding, stride=stride),
+            nn.ReLU(inplace=True),
+            nn.BatchNorm2d(out_channels)
+        )
+
+    def forward(self, x):
+        x = self.convlayer(x)
+        return x
+
+
+class Conv2(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size, padding, stride):
+        super(Conv2, self).__init__()
+        self.convlayer2 = nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, padding=padding, stride=stride),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2),
+            nn.BatchNorm2d(out_channels)
+        )
+
+    def forward(self, x):
+        x = self.convlayer2(x)
+        return x
+
+
 class MixPool(nn.Module):
     def __init__(self, kernel_size, stride, padding, alpha):
         super(MixPool, self).__init__()
