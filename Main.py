@@ -260,7 +260,7 @@ def main():
         axs[ind].set_title('lambda_val=' + str(round(l, 1)))
     plt.show()
     plt.savefig("Interpolate_in_Latent_Space", bbox_inches='tight')
-    wandb.save('Interpolate_in_Latent_Space.PNG')
+    wandb.save('Interpolate_in_Latent_Space.png')
 
     # Show 2D Latent Space
     # load a network that was trained with a 2d latent space
@@ -288,7 +288,7 @@ def main():
         show_image(torchvision.utils.make_grid(image_recon.data[:400], 20, 5))
         plt.show()
         plt.savefig("2DLatent_Space", bbox_inches='tight')
-        wandb.save('2DLatent_Space.PNG')
+        wandb.save('2DLatent_Space.png')
 
 
 
