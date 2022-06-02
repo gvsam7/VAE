@@ -284,7 +284,7 @@ def main():
 
     # Show 2D Latent Space
     # load a network that was trained with a 2d latent space
-    if latent_dims != 12:
+    if latent_dims != args.latent_dims:
         print('Please change the parameters to two latent dimensions.')
 
     with torch.no_grad():
@@ -292,12 +292,12 @@ def main():
         # create a sample grid in 2d latent space
         latent_x = np.linspace(-1.5, 1.5, 20)
         latent_y = np.linspace(-1.5, 1.5, 20)
-        latents = torch.FloatTensor(len(latent_y), len(latent_x), 12)
+        latents = torch.FloatTensor(len(latent_y), len(latent_x), args.latent_dims)
         for i, lx in enumerate(latent_x):
             for j, ly in enumerate(latent_y):
                 latents[j, i, 0] = lx
                 latents[j, i, 1] = ly
-        latents = latents.view(-1, 12)  # flatten grid into a batch
+        latents = latents.view(-1, args.latent_dims)  # flatten grid into a batch
 
         # reconstruct images from the latent vectors
         latents = latents.to(device)
