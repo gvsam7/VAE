@@ -258,8 +258,8 @@ def main():
 
         axs[ind].imshow(image[0, 0, :, :], cmap='gray')
         axs[ind].set_title('lambda_val=' + str(round(l, 1)))
-    plt.savefig("Interpolate_in_Latent Space", bbox_inches='tight')
     plt.show()
+    plt.savefig("Interpolate_in_Latent Space", bbox_inches='tight')
     wandb.save('Interpolate_in_Latent Space.PNG')
 
     # Show 2D Latent Space
