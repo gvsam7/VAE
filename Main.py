@@ -203,6 +203,7 @@ def main():
             plt.imshow(np.transpose(np_imagegrid, (1, 2, 0)))
             plt.show()
             plt.savefig("VAE_Reconstruction", bbox_inches='tight')
+            wandb.save('OriginalImage.png')
 
     images, labels = iter(test_loader).next()
 

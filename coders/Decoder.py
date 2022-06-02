@@ -6,7 +6,7 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
         self.fc = nn.Linear(in_features=latent_dims, out_features=c*16*4*4)
         self.dec = nn.Sequential(
-           nn.ConvTranspose2d(in_channels=c*16, out_channels=c*8, kernel_size=3, output_padding=1, padding=1, stride=2),  # 4x4 => 8x8
+            nn.ConvTranspose2d(in_channels=c*16, out_channels=c*8, kernel_size=3, output_padding=1, padding=1, stride=2),  # 4x4 => 8x8
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(c*8),
             nn.ConvTranspose2d(in_channels=c*8, out_channels=c*4, kernel_size=3, padding=1),
