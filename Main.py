@@ -193,8 +193,8 @@ def main():
     def visualise_output(images, model):
 
         with torch.no_grad():
-            fig = plt.figure(figsize=(10, 10))
-            ax = fig.add_subplot(111)
+            # fig = plt.figure(figsize=(10, 10))
+            # ax = fig.add_subplot(111)
             images = images.to(device)
             images, _, _ = model(images)
             images = images.cpu()
@@ -203,7 +203,7 @@ def main():
             plt.imshow(np.transpose(np_imagegrid, (1, 2, 0)))
             plt.show()
             plt.savefig("VAE_Reconstruction", bbox_inches='tight')
-            wandb.save('OriginalImage.png')
+            wandb.save('VAE_Reconstruction.png')
 
     images, labels = iter(test_loader).next()
 
