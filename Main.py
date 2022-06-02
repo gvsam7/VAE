@@ -263,6 +263,32 @@ def main():
     wandb.save('Interpolate_in_Latent_Space.PNG')
 
     # Show 2D Latent Space
+    # load a network that was trained with a 2d latent space
+    if latent_dims != 12:
+        print('Please change the parameters to two latent dimensions.')
+
+    with torch.no_grad():
+
+        # create a sample grid in 2d latent space
+        latent_x = np.linspace(-1.5, 1.5, 20)
+        latent_y = np.linspace(-1.5, 1.5, 20)
+        latents = torch.FloatTensor(len(latent_y), len(latent_x), 12)
+        for i, lx in enumerate(latent_x):
+            for j, ly in enumerate(latent_y):
+                latents[j, i, 0] = lx
+                latents[j, i, 1] = ly
+        latents = latents.view(-1, 12)  # flatten grid into a batch
+
+        # reconstruct images from the latent vectors
+        latents = latents.to(device)
+        image_recon = vae.decoder(latents)
+        image_recon = image_recon.cpu()
+
+        fig, ax = plt.subplots(figsize=(10, 10))
+        show_image(torchvision.utils.make_grid(image_recon.data[:400], 20, 5))
+        plt.show()
+        plt.savefig("2DLatent_Space", bbox_inches='tight')
+        wandb.save('2DLatent_Space.PNG')
 
 
 
