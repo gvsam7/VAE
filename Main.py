@@ -28,7 +28,7 @@ def arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", type=int, default=10)
     parser.add_argument("--latent_dims", type=int, default=12)
-    parser.add_argument("--batch_size", type=int, default=32)
+    parser.add_argument("--batch_size", type=int, default=100)
     parser.add_argument("--capacity", type=int, default=32)
     parser.add_argument("--learning_rate", type=int, default=1e-3)
     parser.add_argument("--variational_beta", type=int, default=1)
@@ -188,8 +188,6 @@ def main():
         img = to_img(img)
         npimg = img.numpy()
         plt.imshow(np.transpose(npimg, (1, 2, 0)))
-        # plt.savefig("Original_Image", bbox_inches='tight')
-        # wandb.save('Original_Image.png')
 
     def visualise_output(images, model):
 
@@ -309,7 +307,6 @@ def main():
         plt.show()
         plt.savefig("2DLatent_Space", bbox_inches='tight')
         wandb.save('2DLatent_Space.png')
-
 
 
 if __name__ == "__main__":
