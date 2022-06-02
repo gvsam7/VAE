@@ -37,6 +37,7 @@ def arguments():
                                                            "cifar = CIFAR10, stl = STL10")
     parser.add_argument("--num_workers", type=int, default=0)
     parser.add_argument("--device", type=int, default=0)
+    parser.add_argument("--encoder", default="encoder", help="encoder=Encoder, gaborencoder=GaborEncoder")
 
     return parser.parse_args()
 
@@ -98,7 +99,8 @@ def main():
     elif args.dataset in ["stl"]:
         encoder_out_size = 24 * 24
 
-    vae = VAE(color_channels, c, encoder_out_size, latent_dims)
+    encoder_type = args.encoder
+    vae = VAE(encoder_type, color_channels, c, encoder_out_size, latent_dims)
 
     vae = vae.to(device)
     num_params = sum(p.numel() for p in vae.parameters() if p.requires_grad)
@@ -145,6 +147,7 @@ def main():
         print(f"Epoch [{epoch+1} / {args.epochs}] average reconstruction error: {train_loss_avg[-1]}")
         # train_steps = len(train_loader) * (epoch + 1)
         # wandb.log({"Average Reconstruction Error": {train_loss_avg}}, step=train_steps)
+        wandb.log({"Average Reconstruction Error": {train_loss_avg}})
 
     # Set to evaluation mode
     vae.eval()
@@ -169,6 +172,7 @@ def main():
     print(f"Average reconstruction error: {test_loss_avg}")
     # train_steps = len(train_loader) * (epoch + 1)
     # wandb.log({"Average Reconstruction Error" "Train": {train_loss_avg}, "Test": test_loss_avg}, step=train_steps)
+    wandb.log({"Test Average Reconstruction Error": {test_loss_avg}})
 
     ################################# Reconstruction Visualisation #####################################################
     vae.eval()
