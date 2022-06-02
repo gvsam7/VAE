@@ -1,17 +1,29 @@
 import torch.nn as nn
 
 
-class DecoderLayer(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel, stride, pad, activation="relu"):
-        super().__init__()
-        self.deconv = nn.ConvTranspose2d(in_channels, out_channels, kernel_size=kernel, stride=stride, padding=pad)
-        self.bn = nn.BatchNorm2d(out_channels)
-        if activation == "relu":
-            self.activation = nn.ReLU(inplace=True)
-        else:
-            self.activation = nn.Sigmoid()  # last layer before output is sigmoid, since we are using BCE as reconstruction loss
+class Deconvolution(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size, stride, padding):
+        super(Deconvolution, self).__init__()
+        self.deconvolution = nn.Sequential(
+            nn.ConvTranspose2d(in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding),
+            nn.ReLU(inplace=True),
+            nn.BatchNorm2d(out_channels)
+        )
 
     def forward(self, x):
-        return self.activation(self.deconv(x))
-        return self.activation(self.bn(self.deconv(x)))
+        x = self.deconvolution(x)
+        return x
 
+
+class Deconvolution2(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size, stride, output_padding, padding):
+        super(Deconvolution2, self).__init__()
+        self.deconvolution = nn.Sequential(
+            nn.ConvTranspose2d(in_channels, out_channels, kernel_size=kernel_size, stride=stride, output_padding=1, padding=padding),
+            nn.ReLU(inplace=True),
+            nn.BatchNorm2d(out_channels)
+        )
+
+    def forward(self, x):
+        x = self.deconvolution(x)
+        return x

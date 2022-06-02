@@ -1,23 +1,22 @@
 import torch.nn as nn
+from coders.DecoderLayer import Deconvolution, Deconvolution2
 
+"""
+ To truly have a reverse operation of the convolution, I need to ensure that the layer scales the input shape by a 
+ factor of 2 (e.g.  4×4→8×8 ). For this, I can specify the parameter output_padding which adds additional values to 
+ the output shape. Note that I do not perform zero-padding with this, but rather increase the output shape for 
+ calculation.
+"""
 
 class Decoder(nn.Module):
     def __init__(self, color_channels, c, encoder_out_size, latent_dims):
         super(Decoder, self).__init__()
         self.fc = nn.Linear(in_features=latent_dims, out_features=c*16*4*4)
-        self.dec = nn.Sequential(
-            nn.ConvTranspose2d(in_channels=c*16, out_channels=c*8, kernel_size=3, output_padding=1, padding=1, stride=2),  # 4x4 => 8x8
-            nn.ReLU(inplace=True),
-            nn.BatchNorm2d(c*8),
-            nn.ConvTranspose2d(in_channels=c*8, out_channels=c*4, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.BatchNorm2d(c*4),
-            nn.ConvTranspose2d(in_channels=c*4, out_channels=c*2, kernel_size=3, output_padding=1, padding=1, stride=2),  # 8x8 => 16x16
-            nn.ReLU(inplace=True),
-            nn.BatchNorm2d(c*2),
-            nn.ConvTranspose2d(in_channels=c*2, out_channels=c, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.BatchNorm2d(c),
+        self.deconvolution = nn.Sequential(
+            Deconvolution2(in_channels=c*16, out_channels=c*8, kernel_size=3, output_padding=1, padding=1, stride=2),  # 4x4 => 8x8
+            Deconvolution(in_channels=c*8, out_channels=c*4, kernel_size=3, padding=1, stride=1),
+            Deconvolution2(in_channels=c*4, out_channels=c*2, kernel_size=3, output_padding=1, padding=1, stride=2),  # 8x8 => 16x16
+            Deconvolution(in_channels=c*2, out_channels=c, kernel_size=3, padding=1, stride=1),
             nn.ConvTranspose2d(in_channels=c, out_channels=3, kernel_size=3, output_padding=1, padding=1, stride=2),  # 16x16 => 32x32
             nn.Sigmoid()
         )
@@ -26,7 +25,7 @@ class Decoder(nn.Module):
         x = self.fc(x)
         x = x.reshape(x.shape[0], -1, 4, 4)
         # x = x.view(x.size(0), capacity*16, 4, 4) # unflatten batch of feature vectors to a batch of multi-channel feature maps
-        x = self.dec(x)
+        x = self.deconvolution(x)
         return x
 
 

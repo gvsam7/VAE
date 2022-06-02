@@ -107,7 +107,7 @@ def main():
     print(f"Number of parameters: {num_params}")
 
     summary(vae.encoder.features, (3, 32, 32))
-    summary(vae.decoder.dec, (512, 4, 4))
+    summary(vae.decoder.deconvolution, (512, 4, 4))
 
     optimizer = optim.Adam(params=vae.parameters(), lr=args.learning_rate)
 
