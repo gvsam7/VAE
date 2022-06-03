@@ -109,7 +109,8 @@ def main():
     num_params = sum(p.numel() for p in vae.parameters() if p.requires_grad)
     print(f"Number of parameters: {num_params}")
 
-    summary(vae.encoder.features, (3, 32, 32))
+    # summary(vae.encoder.features, (3, 32, 32))
+    print(vae.encoder.features)
     summary(vae.decoder.deconvolution, (512, 4, 4))
 
     optimizer = optim.Adam(params=vae.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
@@ -202,8 +203,6 @@ def main():
             np_imagegrid = torchvision.utils.make_grid(images[1: 50], 10, 5).numpy()
             plt.imshow(np.transpose(np_imagegrid, (1, 2, 0)))
             plt.show()
-            # plt.savefig("VAE_Reconstruction", bbox_inches='tight')
-            # wandb.save('VAE_Reconstruction.png')
 
     images, labels = iter(test_loader).next()
 
