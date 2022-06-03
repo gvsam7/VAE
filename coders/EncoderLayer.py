@@ -5,6 +5,7 @@ from torch.nn import Parameter
 import math
 from torch.nn.modules.conv import _ConvNd
 from torch.nn.modules.utils import _pair
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 class Conv1(nn.Module):

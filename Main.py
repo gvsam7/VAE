@@ -202,8 +202,8 @@ def main():
             np_imagegrid = torchvision.utils.make_grid(images[1: 50], 10, 5).numpy()
             plt.imshow(np.transpose(np_imagegrid, (1, 2, 0)))
             plt.show()
-            plt.savefig("VAE_Reconstruction", bbox_inches='tight')
-            wandb.save('VAE_Reconstruction.png')
+            # plt.savefig("VAE_Reconstruction", bbox_inches='tight')
+            # wandb.save('VAE_Reconstruction.png')
 
     images, labels = iter(test_loader).next()
 
@@ -217,6 +217,8 @@ def main():
     # Reconstruct and visualise the images using the VAE
     print("VAE Reconstruction")
     visualise_output(images, vae)
+    plt.savefig("VAE_Reconstruction", bbox_inches='tight')
+    wandb.save('VAE_Reconstruction.png')
 
     # Interpolate in Latent Space
     def interpolation(lambda1, model, img1, img2):
