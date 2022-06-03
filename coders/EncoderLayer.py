@@ -159,7 +159,7 @@ class GaborConv2d(nn.Module):
 
 class Gabor2Conv2d(_ConvNd):
 
-    def __init__(self, in_channels, out_channels, kernel_size, device="cpu", stride=1,
+    def __init__(self, in_channels, out_channels, kernel_size, device=device, stride=1,
                  padding=0, dilation=1, groups=1, bias=False, padding_mode='zeros'):
         kernel_size = _pair(kernel_size)
         stride = _pair(stride)
