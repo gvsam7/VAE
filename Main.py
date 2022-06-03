@@ -28,9 +28,10 @@ def arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", type=int, default=10)
     parser.add_argument("--latent_dims", type=int, default=12)
-    parser.add_argument("--batch_size", type=int, default=100)
+    parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--capacity", type=int, default=32)
-    parser.add_argument("--learning_rate", type=int, default=1e-3)
+    parser.add_argument("--learning_rate", type=int, default=3e-04)
+    parser.add_argument("--weight_decay", type=int, default=1e-5)
     parser.add_argument("--variational_beta", type=int, default=1)
     parser.add_argument("--color_channels", type=int, default=1)
     parser.add_argument("--dataset", default="mnist", help="mnist = MNIST, fashion-mnist = FashionMNIST,"
@@ -109,7 +110,7 @@ def main():
     summary(vae.encoder.features, (3, 32, 32))
     summary(vae.decoder.deconvolution, (512, 4, 4))
 
-    optimizer = optim.Adam(params=vae.parameters(), lr=args.learning_rate)
+    optimizer = optim.Adam(params=vae.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
 
     # set to training mode
     vae.train()
