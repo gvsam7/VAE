@@ -1,5 +1,7 @@
+import torch
 import torch.nn as nn
 from coders.EncoderLayer import MixPool, Gabor2Conv2d
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 class Gabor2Encoder(nn.Module):
