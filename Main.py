@@ -21,6 +21,7 @@ from torch.utils.data import DataLoader
 import argparse
 from models.VAE import VAE
 from torchsummary import summary
+import tqdm
 import wandb
 
 
@@ -38,7 +39,8 @@ def arguments():
                                                            "cifar = CIFAR10, stl = STL10")
     parser.add_argument("--num_workers", type=int, default=0)
     parser.add_argument("--device", type=int, default=0)
-    parser.add_argument("--encoder", default="encoder", help="encoder=Encoder, gaborencoder=GaborEncoder")
+    parser.add_argument("--encoder", default="encoder", help="encoder=Encoder, gaborencoder=GaborEncoder, "
+                                                             "gabor2encoder=Gabor2Encoder")
 
     return parser.parse_args()
 
