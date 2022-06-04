@@ -365,7 +365,8 @@ def main():
         return tsne_data
 
     # Principle Components Analysis (PCA)
-    outputs, intermediates, labels = get_representations(model, train_loader, device)
+    classes = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck'] 
+    outputs, intermediates, labels = get_representations(vae, train_loader, device)
 
     output_pca_data = get_pca(outputs)
     plot_representations(output_pca_data, labels, classes, "PCA")
