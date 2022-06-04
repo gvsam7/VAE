@@ -21,8 +21,7 @@ from torch.utils.data import DataLoader
 import argparse
 from models.VAE import VAE
 from torchsummary import summary
-import tqdm
-import matplotlib.colors as mcolors
+from sklearn import decomposition, manifold
 import wandb
 
 
@@ -312,76 +311,72 @@ def main():
         plt.savefig("2DLatent_Space", bbox_inches='tight')
         wandb.save('2DLatent_Space.png')
 
-    X_test_encoded = vae.encoder(test_loader)
-    y_test = test_loader.labels
-    print(f"labels: {y_test}")
-
-    # Recall that our encoder returns 3 arrays: z-mean, z-log-sigma and z. We plot the values for z
-    # Create a scatter plot
-    fig = plt.scatter(None, x=X_test_encoded[2][:, 0], y=X_test_encoded[2][:, 1],
-                     opacity=1, color=y_test.astype(str))
-
-    # Change chart background color
-    fig.update_layout(dict(plot_bgcolor='white'))
-
-    # Update axes lines
-    fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='white',
-                     zeroline=True, zerolinewidth=1, zerolinecolor='white',
-                     showline=True, linewidth=1, linecolor='white',
-                     title_font=dict(size=10), tickfont=dict(size=10))
-
-    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='white',
-                     zeroline=True, zerolinewidth=1, zerolinecolor='white',
-                     showline=True, linewidth=1, linecolor='white',
-                     title_font=dict(size=10), tickfont=dict(size=10))
-
-    # Set figure title
-    fig.update_layout(title_text="MNIST digit representation in the 2D Latent Space")
-
-    # Update marker size
-    fig.update_traces(marker=dict(size=2))
-
-    fig.show()
-
-    # Plot Latent space with labels
-    def plot_latent_space_with_labels(num_classes, data_loader, model, device):
-        d = {i: [] for i in range(num_classes)}
+    def get_representations(model, iterator, device):
 
         model.eval()
+
+        outputs = []
+        intermediates = []
+        labels = []
+
         with torch.no_grad():
-            for i, (features, targets) in enumerate(data_loader):
+            for x, y in iterator:
+                x = x.to(device)
+                y_pred = model(x)
+                h = model(x)
 
-                features = features.to(device)
-                targets = targets.to(device)
+                outputs.append(y_pred.cpu())
+                intermediates.append(h.cpu())
+                labels.append(y)
 
-                embedding = model.encoder(features)
+        outputs = torch.cat(outputs, dim=0)
+        intermediates = torch.cat(intermediates, dim=0)
+        labels = torch.cat(labels, dim=0)
 
-                for i in range(num_classes):
-                    if i in targets:
-                        mask = targets == i
-                        d[i].append(embedding[mask].to(device).numpy())
+        return outputs, intermediates, labels
 
-        colors = list(mcolors.TABLEAU_COLORS.items())
-        for i in range(num_classes):
-            d[i] = np.concatenate(d[i])
-            plt.scatter(
-                d[i][:, 0], d[i][:, 1],
-                color=colors[i][1],
-                label=f'{i}',
-                alpha=0.5)
+    def get_pca(data, n_components=2):
+        pca = decomposition.PCA()
+        pca.n_components = n_components
+        pca_data = pca.fit_transform(data)
+        return pca_data
 
-        plt.legend()
+    def plot_representations(data, labels, classes, type, n_images=None):
+        if n_images is not None:
+            data = data[:n_images]
+            labels = labels[:n_images]
 
-    plot_latent_space_with_labels(
-        num_classes=labels,
-        data_loader=train_loader,
-        model=vae,
-        device=device)
+        fig = plt.figure(figsize=(10, 10))
+        ax = fig.add_subplot(111)
+        scatter = ax.scatter(data[:, 0], data[:, 1], c=labels, cmap='tab10')
+        handles, labels = scatter.legend_elements()
+        legend = ax.legend(handles=handles, labels=classes)
+        if type == "PCA":
+            fig.savefig("PCA", bbox_inches='tight')
+        else:
+            fig.savefig("TSNE", bbox_inches='tight')
 
-    plt.legend()
-    plt.show()
-    plt.savefig("Latent_Space_Labels", bbox_inches='tight')
-    wandb.save('Latent_Space_Labels.png')
+    def get_tsne(data, n_components=2, n_images=None):
+        if n_images is not None:
+            data = data[:n_images]
+
+        tsne = manifold.TSNE(n_components=n_components, random_state=0)
+        tsne_data = tsne.fit_transform(data)
+        return tsne_data
+
+    # Principle Components Analysis (PCA)
+    outputs, intermediates, labels = get_representations(model, train_loader, device)
+
+    output_pca_data = get_pca(outputs)
+    plot_representations(output_pca_data, labels, classes, "PCA")
+    wandb.save('PCA.png')
+
+    # t-Distributed Stochastic Neighbor Embedding (t-SNE)
+    n_images = 10_000
+
+    output_tsne_data = get_tsne(outputs, n_images=n_images)
+    plot_representations(output_tsne_data, labels, classes, "TSNE", n_images=n_images)
+    wandb.save('TSNE.png')
 
 
 if __name__ == "__main__":
