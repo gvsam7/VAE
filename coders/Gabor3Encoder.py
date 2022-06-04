@@ -2,9 +2,9 @@ import torch.nn as nn
 from coders.EncoderLayer import MixPool, GaborConv2d
 
 
-class GaborEncoder(nn.Module):
+class Gabor3Encoder(nn.Module):
     def __init__(self, color_channels, c, encoder_out_size, latent_dims):
-        super(GaborEncoder, self).__init__()
+        super(Gabor3Encoder, self).__init__()
         self.features = nn.Sequential(
             GaborConv2d(in_channels=3, out_channels=c, kernel_size=3, padding=1, stride=1),  # 32x32 => 16x16
             nn.ReLU(inplace=True),

@@ -40,7 +40,7 @@ def arguments():
     parser.add_argument("--num_workers", type=int, default=0)
     parser.add_argument("--device", type=int, default=0)
     parser.add_argument("--encoder", default="encoder", help="encoder=Encoder, gaborencoder=GaborEncoder, "
-                                                             "gabor2encoder=Gabor2Encoder")
+                                                             "gabor2encoder=Gabor2Encoder, gabor3encoder=Gabor3Encoder")
 
     return parser.parse_args()
 

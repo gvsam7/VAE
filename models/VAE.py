@@ -5,6 +5,7 @@ from coders.Encoder import Encoder
 from coders.Decoder import Decoder
 from coders.GaborEncoder import GaborEncoder
 from coders.Gabor2Encoder import Gabor2Encoder
+from coders.Gabor3Encoder import Gabor3Encoder
 
 variational_beta = 1
 
@@ -16,6 +17,8 @@ class VAE(nn.Module):
             self.encoder = Encoder(color_channels, c, encoder_out_size, latent_dims)
         elif encoder_type == 'gabor2encoder':
             self.encoder = Gabor2Encoder(color_channels, c, encoder_out_size, latent_dims)
+        elif encoder_type == 'gabor3encoder':
+            self.encoder = Gabor3Encoder(color_channels, c, encoder_out_size, latent_dims)
         else:
             self.encoder = GaborEncoder(color_channels, c, encoder_out_size, latent_dims)
         self.decoder = Decoder(color_channels, c, encoder_out_size, latent_dims)
