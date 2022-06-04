@@ -328,7 +328,7 @@ def main():
                 for i in range(num_classes):
                     if i in targets:
                         mask = targets == i
-                        d[i].append(embedding[mask].to('cpu').numpy())
+                        d[i].append(embedding[mask].to(device).numpy())
 
         colors = list(mcolors.TABLEAU_COLORS.items())
         for i in range(num_classes):
