@@ -312,7 +312,7 @@ def main():
         plt.savefig("2DLatent_Space", bbox_inches='tight')
         wandb.save('2DLatent_Space.png')
 
-    X_test_encoded = VAE.encoder.predict(test_loader)
+    X_test_encoded = vae.encoder.predict(test_loader)
     y_test = test_loader.labels
     print(f"labels: {y_test}")
 
