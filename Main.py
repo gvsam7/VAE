@@ -312,9 +312,40 @@ def main():
         plt.savefig("2DLatent_Space", bbox_inches='tight')
         wandb.save('2DLatent_Space.png')
 
+    X_test_encoded = VAE.Encoder.predict(test_loader)
+    y_test = test_loader.labels
+    print(f"labels: {y_test}")
+
+    # Recall that our encoder returns 3 arrays: z-mean, z-log-sigma and z. We plot the values for z
+    # Create a scatter plot
+    fig = plt.scatter(None, x=X_test_encoded[2][:, 0], y=X_test_encoded[2][:, 1],
+                     opacity=1, color=y_test.astype(str))
+
+    # Change chart background color
+    fig.update_layout(dict(plot_bgcolor='white'))
+
+    # Update axes lines
+    fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='white',
+                     zeroline=True, zerolinewidth=1, zerolinecolor='white',
+                     showline=True, linewidth=1, linecolor='white',
+                     title_font=dict(size=10), tickfont=dict(size=10))
+
+    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='white',
+                     zeroline=True, zerolinewidth=1, zerolinecolor='white',
+                     showline=True, linewidth=1, linecolor='white',
+                     title_font=dict(size=10), tickfont=dict(size=10))
+
+    # Set figure title
+    fig.update_layout(title_text="MNIST digit representation in the 2D Latent Space")
+
+    # Update marker size
+    fig.update_traces(marker=dict(size=2))
+
+    fig.show()
+
     # Plot Latent space with labels
     def plot_latent_space_with_labels(num_classes, data_loader, model, device):
-        d = {i: () for i in range(num_classes)}
+        d = {i: [] for i in range(num_classes)}
 
         model.eval()
         with torch.no_grad():
