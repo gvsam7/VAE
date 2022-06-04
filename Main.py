@@ -314,7 +314,7 @@ def main():
 
     # Plot Latent space with labels
     def plot_latent_space_with_labels(num_classes, data_loader, model, device):
-        d = {i: [] for i in range(num_classes)}
+        d = {i: () for i in range(num_classes)}
 
         model.eval()
         with torch.no_grad():
