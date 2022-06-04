@@ -13,7 +13,7 @@ class Gabor3Encoder(nn.Module):
             GaborConv2d(in_channels=c, out_channels=c * 2, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(c * 2),
-            GaborConv2d(in_channels=c * 2, out_channels=c * 4, kernel_size=3, padding=1, stride=1),  # 16x16 => 8x8
+            nn.Conv2d(in_channels=c * 2, out_channels=c * 4, kernel_size=3, padding=1, stride=1),  # 16x16 => 8x8
             nn.ReLU(inplace=True),
             MixPool(2, 2, 0, 0.6),
             nn.BatchNorm2d(c * 4),
