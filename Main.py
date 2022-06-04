@@ -22,6 +22,7 @@ import argparse
 from models.VAE import VAE
 from torchsummary import summary
 import tqdm
+import matplotlib.colors as mcolors
 import wandb
 
 
@@ -310,6 +311,46 @@ def main():
         plt.show()
         plt.savefig("2DLatent_Space", bbox_inches='tight')
         wandb.save('2DLatent_Space.png')
+
+    # Plot Latent space with labels
+    def plot_latent_space_with_labels(num_classes, data_loader, model, device):
+        d = {i: [] for i in range(num_classes)}
+
+        model.eval()
+        with torch.no_grad():
+            for i, (features, targets) in enumerate(data_loader):
+
+                features = features.to(device)
+                targets = targets.to(device)
+
+                embedding = model.encoder(features)
+
+                for i in range(num_classes):
+                    if i in targets:
+                        mask = targets == i
+                        d[i].append(embedding[mask].to('cpu').numpy())
+
+        colors = list(mcolors.TABLEAU_COLORS.items())
+        for i in range(num_classes):
+            d[i] = np.concatenate(d[i])
+            plt.scatter(
+                d[i][:, 0], d[i][:, 1],
+                color=colors[i][1],
+                label=f'{i}',
+                alpha=0.5)
+
+        plt.legend()
+
+    plot_latent_space_with_labels(
+        num_classes=labels,
+        data_loader=train_loader,
+        model=vae,
+        device=device)
+
+    plt.legend()
+    plt.show()
+    plt.savefig("Latent_Space_Labels", bbox_inches='tight')
+    wandb.save('Latent_Space_Labels.png')
 
 
 if __name__ == "__main__":
