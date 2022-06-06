@@ -34,7 +34,7 @@ def arguments():
     parser.add_argument("--learning_rate", type=int, default=3e-04)
     parser.add_argument("--weight_decay", type=int, default=1e-5)
     parser.add_argument("--variational_beta", type=int, default=1)
-    parser.add_argument("--color_channels", type=int, default=1)
+    parser.add_argument("--color_channels", type=int, default=3)
     parser.add_argument("--dataset", default="mnist", help="mnist = MNIST, fashion-mnist = FashionMNIST,"
                                                            "cifar = CIFAR10, stl = STL10")
     parser.add_argument("--num_workers", type=int, default=0)
