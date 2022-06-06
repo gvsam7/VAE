@@ -11,6 +11,8 @@ The datasets were chosen based on their complexity.
 ## Google Colab
 - CNN5 Variational Autoencoder[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1NWtKZAxcJjh5dcZ5mdUFYfGrohXp562S#scrollTo=0GF9eVsnJAbU)
 - GaborCNNMixPool Variational Autoencoder[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1rWh7Rkdl_AsBwxosn_fgIVeobNvvy_o0#scrollTo=buoxuIwz62uG)
+- CNN5 Autoencoder[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1MllV5TxIHq1Q4jjOGpW8aDIa20suDPXO#scrollTo=eqdPbUe7rLPC)
+- GaborCNNMixPool Autoencoder[![Open In Colab](https://colab.research.google.com/drive/1SX1izX0pyOnV7Mo_EBnEaF83aDr0NgoC#scrollTo=2lO_DouNrLO9)
 
 
 
