@@ -217,7 +217,10 @@ def main():
 
         with torch.no_grad():
             images = images.to(device)
-            images, _, _ = model(images)
+            if model == 'vae':
+                images, _, _ = model(images)
+            else:
+                images=model(images)
             images = images.cpu()
             images = to_img(images)
             np_imagegrid = torchvision.utils.make_grid(images[1: 50], 10, 5).numpy()
@@ -245,11 +248,17 @@ def main():
         with torch.no_grad():
             # latent vector of first image
             img1 = img1.to(device)
-            latent_1, _ = model.encoder(img1)
+            if model == 'vae':
+                latent_1, _ = model.encoder(img1)
+            else:
+                latent_1 = model.encoder(img1)
 
             # latent vector of second image
             img2 = img2.to(device)
-            latent_2, _ = model.encoder(img2)
+            if model == 'vae':
+                latent_2, _ = model.encoder(img2)
+            else:
+                latent_2 = model.encoder(img2)
 
             # interpolation of the two latent vectors
             inter_latent = lambda1 * latent_1 + (1 - lambda1) * latent_2
@@ -276,7 +285,7 @@ def main():
     axs = axs.ravel()
 
     for ind, l in enumerate(lambda_range):
-        inter_image = interpolation(float(l), vae, digits[7][0], digits[1][0])
+        inter_image = interpolation(float(l), model, digits[7][0], digits[1][0])
 
         inter_image = to_img(inter_image)
 
@@ -295,7 +304,7 @@ def main():
         latent = torch.randn(128, latent_dims, device=device)
 
         # reconstruct images from the latent vectors
-        img_recon = vae.decoder(latent)
+        img_recon = model.decoder(latent)
         img_recon = img_recon.cpu()
 
         fig, ax = plt.subplots(figsize=(5, 5))
