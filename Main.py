@@ -12,6 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torchvision.utils
 import torch
+import torch.nn.functional as F
 import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
@@ -20,6 +21,7 @@ from torchvision.datasets import MNIST, FashionMNIST, CIFAR10, STL10
 from torch.utils.data import DataLoader
 import argparse
 from models.VAE import VAE
+from models.Autoencoder import Autoencoder
 from torchsummary import summary
 from sklearn import decomposition, manifold
 import wandb
@@ -35,12 +37,14 @@ def arguments():
     parser.add_argument("--weight_decay", type=int, default=1e-5)
     parser.add_argument("--variational_beta", type=int, default=1)
     parser.add_argument("--color_channels", type=int, default=3)
-    parser.add_argument("--dataset", default="mnist", help="mnist = MNIST, fashion-mnist = FashionMNIST,"
+    parser.add_argument("--dataset", default="cifar", help="mnist = MNIST, fashion-mnist = FashionMNIST,"
                                                            "cifar = CIFAR10, stl = STL10")
     parser.add_argument("--num_workers", type=int, default=0)
     parser.add_argument("--device", type=int, default=0)
+    parser.add_argument("--model", default="vae", help="vae=VAE, autoencoder=Autoencoder")
     parser.add_argument("--encoder", default="encoder", help="encoder=Encoder, gaborencoder=GaborEncoder, "
-                                                             "gabor2encoder=Gabor2Encoder, gabor3encoder=Gabor3Encoder")
+                                                             "gabor2encoder=Gabor2Encoder, gabor3encoder=Gabor3Encoder,"
+                                                             "gabencoder=GabEncoder")
 
     return parser.parse_args()
 
@@ -103,19 +107,24 @@ def main():
         encoder_out_size = 24 * 24
 
     encoder_type = args.encoder
-    vae = VAE(encoder_type, color_channels, c, encoder_out_size, latent_dims)
+    # model
+    if args.model == 'vae':
+        model = VAE(encoder_type, color_channels, c, encoder_out_size, latent_dims)
+    else:
+        model = Autoencoder(encoder_type, color_channels, c, encoder_out_size, latent_dims)
+    print(f"model is {args.model}")
 
-    vae = vae.to(device)
-    num_params = sum(p.numel() for p in vae.parameters() if p.requires_grad)
+    model = model.to(device)
+    num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"Number of parameters: {num_params}")
 
-    summary(vae.encoder.features, (3, 32, 32))
-    summary(vae.decoder.deconvolution, (512, 4, 4))
+    summary(model.encoder.features, (3, 32, 32))
+    summary(model.decoder.deconvolution, (512, 4, 4))
 
-    optimizer = optim.Adam(params=vae.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
+    optimizer = optim.Adam(params=model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
 
     # set to training mode
-    vae.train()
+    model.train()
 
     train_loss_avg = []
 
@@ -127,11 +136,17 @@ def main():
         for image_batch, _ in train_loader:
             image_batch = image_batch.to(device)
 
-            # VAE Reconstruction
-            image_batch_recon, latent_mu, latent_logvar = vae(image_batch)
+            # VAE/AE Reconstruction
+            if model == 'vae':
+                image_batch_recon, latent_mu, latent_logvar = model(image_batch)
+            else:
+                image_batch_recon = model(image_batch)
 
             # Reconstruction Error
-            loss = VAE.vae_loss(image_batch_recon, image_batch, latent_mu, latent_logvar)
+            if model == 'vae':
+                loss = VAE.vae_loss(image_batch_recon, image_batch, latent_mu, latent_logvar)
+            else:
+                loss = F.binary_cross_entropy(image_batch_recon, image_batch)
 
             # Backpropagation
             optimizer.zero_grad()
@@ -152,7 +167,7 @@ def main():
         wandb.log({"Average Reconstruction Error": train_loss_avg[-1]}, step=train_steps)
 
     # Set to evaluation mode
-    vae.eval()
+    model.eval()
 
     test_loss_avg, num_batches = 0, 0
     for image_batch, _ in test_loader:
@@ -161,11 +176,17 @@ def main():
 
             image_batch = image_batch.to(device)
 
-            # VAE Reconstruction
-            image_batch_recon, latent_mu, latent_logvar = vae(image_batch)
+            # AE/VAE Reconstruction
+            if model == 'vae':
+                image_batch_recon, latent_mu, latent_logvar = model(image_batch)
+            else:
+                image_batch_recon = model(image_batch)
 
             # Reconstruction Error
-            loss = VAE.vae_loss(image_batch_recon, image_batch, latent_mu, latent_logvar)
+            if model == 'vae':
+                loss = VAE.vae_loss(image_batch_recon, image_batch, latent_mu, latent_logvar)
+            else:
+                loss = F.binary_cross_entropy(image_batch_recon, image_batch)
 
             test_loss_avg += loss.item()
             num_batches += 1
@@ -176,7 +197,7 @@ def main():
     wandb.log({"Test Average Reconstruction Error": test_loss_avg}, step=train_steps)
 
     ################################# Reconstruction Visualisation #####################################################
-    vae.eval()
+    model.eval()
     """
     This function takes as an input the images to reconstruct and the name of the model with which the reconstructions 
     are performed. 
@@ -214,7 +235,7 @@ def main():
 
     # Reconstruct and visualise the images using the VAE
     print("VAE Reconstruction")
-    visualise_output(images, vae)
+    visualise_output(images, model)
     plt.savefig("VAE_Reconstruction", bbox_inches='tight')
     wandb.save('VAE_Reconstruction.png')
 
@@ -302,7 +323,7 @@ def main():
 
         # reconstruct images from the latent vectors
         latents = latents.to(device)
-        image_recon = vae.decoder(latents)
+        image_recon = model.decoder(latents)
         image_recon = image_recon.cpu()
 
         fig, ax = plt.subplots(figsize=(10, 10))
