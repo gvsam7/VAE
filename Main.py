@@ -308,15 +308,42 @@ def main():
             img_recon = model.decoder(latent)
             img_recon = img_recon.cpu()
         else:
-            latent = latent.to(device)
-            img_recon = model.decoder(latent)
-            img_recon = img_recon.cpu()
+            None
 
         fig, ax = plt.subplots(figsize=(5, 5))
         show_image(torchvision.utils.make_grid(img_recon.data[:100], 10, 5))
         plt.show()
         plt.savefig("Sample_Latent_Vector_from_Prior.png", bbox_inches='tight')
         wandb.save('Sample_Latent_Vector_from_Prior.png')
+
+    # Random Latent Vector (Autoencoder as Generator)
+    if model == 'autoencoder':
+        with torch.no_grad():
+            # approx. fit a multivariate Normal distribution (with diagonal cov.) to the latent vectors of a random
+            # part of the test set.
+            images, labels = iter(test_loader).next()
+            images = images.to(device)
+            latent = model.encoder(images)
+            latent = latent.cpu()
+
+            mean = latent.mean(dim=0)
+            std = (latent - mean).pow(2).mean(dim=0).sqrt()
+
+            # sample latent vectors from the normal distribution
+            latent = torch.randn(128, latent_dims) * std + mean
+
+            # reconstruct images from the latent vectors
+            latent = latent.to(device)
+            img_recon = model.decoder(latent)
+            img_recon = img_recon.cpu()
+
+            fig, ax = plt.subplots(figsize=(5, 5))
+            show_image(torchvision.utils.make_grid(img_recon[:100], 10, 5))
+            plt.show()
+            plt.savefig("Random_Latent_Vector", bbox_inches='tight')
+            wandb.save('Random_Latent_Vector.png')
+    else:
+        None
 
     # Show 2D Latent Space
     # load a network that was trained with a 2d latent space
