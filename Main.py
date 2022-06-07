@@ -298,23 +298,23 @@ def main():
     wandb.save('Interpolate_in_Latent_Space.png')
 
     # Sample Latent Vector from Prior (VAE as Generator)
-    with torch.no_grad():
+    if model == 'vae':
+        with torch.no_grad():
 
-        # sample latent vectors from the normal distribution
-        latent = torch.randn(128, latent_dims, device=device)
+            # sample latent vectors from the normal distribution
+            latent = torch.randn(128, latent_dims, device=device)
 
-        # reconstruct images from the latent vectors
-        if model == 'vae':
+            # reconstruct images from the latent vectors
             img_recon = model.decoder(latent)
             img_recon = img_recon.cpu()
-        else:
-            None
 
-        fig, ax = plt.subplots(figsize=(5, 5))
-        show_image(torchvision.utils.make_grid(img_recon.data[:100], 10, 5))
-        plt.show()
-        plt.savefig("Sample_Latent_Vector_from_Prior.png", bbox_inches='tight')
-        wandb.save('Sample_Latent_Vector_from_Prior.png')
+            fig, ax = plt.subplots(figsize=(5, 5))
+            show_image(torchvision.utils.make_grid(img_recon.data[:100], 10, 5))
+            plt.show()
+            plt.savefig("Sample_Latent_Vector_from_Prior.png", bbox_inches='tight')
+            wandb.save('Sample_Latent_Vector_from_Prior.png')
+    else:
+        None
 
     # Random Latent Vector (Autoencoder as Generator)
     if model == 'autoencoder':
