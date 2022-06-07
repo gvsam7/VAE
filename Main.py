@@ -330,7 +330,7 @@ def main():
             std = (latent - mean).pow(2).mean(dim=0).sqrt()
 
             # sample latent vectors from the normal distribution
-            latent = torch.randn(128, latent_dims) * std + mean
+            latent = torch.randn(128, 512) * std + mean  # changed latent_dims to 512
 
             # reconstruct images from the latent vectors
             latent = latent.to(device)
