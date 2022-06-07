@@ -340,6 +340,7 @@ def main():
             fig, ax = plt.subplots(figsize=(5, 5))
             show_image(torchvision.utils.make_grid(img_recon[:100], 10, 5))
             plt.show()
+            print("saving random latent vector...")
             plt.savefig("Random_Latent_Vector", bbox_inches='tight')
             wandb.save('Random_Latent_Vector.png')
     else:
@@ -347,31 +348,34 @@ def main():
 
     # Show 2D Latent Space
     # load a network that was trained with a 2d latent space
-    if latent_dims != args.latent_dims:
-        print('Please change the parameters to two latent dimensions.')
+    if model == 'vae':
+        if latent_dims != args.latent_dims:
+            print('Please change the parameters to two latent dimensions.')
 
-    with torch.no_grad():
+        with torch.no_grad():
 
-        # create a sample grid in 2d latent space
-        latent_x = np.linspace(-1.5, 1.5, 20)
-        latent_y = np.linspace(-1.5, 1.5, 20)
-        latents = torch.FloatTensor(len(latent_y), len(latent_x), args.latent_dims)
-        for i, lx in enumerate(latent_x):
-            for j, ly in enumerate(latent_y):
-                latents[j, i, 0] = lx
-                latents[j, i, 1] = ly
-        latents = latents.view(-1, args.latent_dims)  # flatten grid into a batch
+            # create a sample grid in 2d latent space
+            latent_x = np.linspace(-1.5, 1.5, 20)
+            latent_y = np.linspace(-1.5, 1.5, 20)
+            latents = torch.FloatTensor(len(latent_y), len(latent_x), args.latent_dims)
+            for i, lx in enumerate(latent_x):
+                for j, ly in enumerate(latent_y):
+                    latents[j, i, 0] = lx
+                    latents[j, i, 1] = ly
+            latents = latents.view(-1, args.latent_dims)  # flatten grid into a batch
 
-        # reconstruct images from the latent vectors
-        latents = latents.to(device)
-        image_recon = model.decoder(latents)
-        image_recon = image_recon.cpu()
+            # reconstruct images from the latent vectors
+            latents = latents.to(device)
+            image_recon = model.decoder(latents)
+            image_recon = image_recon.cpu()
 
-        fig, ax = plt.subplots(figsize=(10, 10))
-        show_image(torchvision.utils.make_grid(image_recon.data[:400], 20, 5))
-        plt.show()
-        plt.savefig("2DLatent_Space", bbox_inches='tight')
-        wandb.save('2DLatent_Space.png')
+            fig, ax = plt.subplots(figsize=(10, 10))
+            show_image(torchvision.utils.make_grid(image_recon.data[:400], 20, 5))
+            plt.show()
+            plt.savefig("2DLatent_Space", bbox_inches='tight')
+            wandb.save('2DLatent_Space.png')
+    else:
+        None
 
 
 if __name__ == "__main__":
