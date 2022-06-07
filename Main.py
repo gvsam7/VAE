@@ -304,8 +304,13 @@ def main():
         latent = torch.randn(128, latent_dims, device=device)
 
         # reconstruct images from the latent vectors
-        img_recon = model.decoder(latent)
-        img_recon = img_recon.cpu()
+        if model == 'vae':
+            img_recon = model.decoder(latent)
+            img_recon = img_recon.cpu()
+        else:
+            latent = latent.to(device)
+            img_recon = model.decoder(latent)
+            img_recon = img_recon.cpu()
 
         fig, ax = plt.subplots(figsize=(5, 5))
         show_image(torchvision.utils.make_grid(img_recon.data[:100], 10, 5))
