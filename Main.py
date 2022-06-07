@@ -137,13 +137,13 @@ def main():
             image_batch = image_batch.to(device)
 
             # VAE/AE Reconstruction
-            if model == 'vae':
+            if args.model == 'vae':
                 image_batch_recon, latent_mu, latent_logvar = model(image_batch)
             else:
                 image_batch_recon = model(image_batch)
 
             # Reconstruction Error
-            if model == 'vae':
+            if args.model == 'vae':
                 loss = VAE.vae_loss(image_batch_recon, image_batch, latent_mu, latent_logvar)
             else:
                 loss = F.binary_cross_entropy(image_batch_recon, image_batch)
@@ -177,13 +177,13 @@ def main():
             image_batch = image_batch.to(device)
 
             # AE/VAE Reconstruction
-            if model == 'vae':
+            if args.model == 'vae':
                 image_batch_recon, latent_mu, latent_logvar = model(image_batch)
             else:
                 image_batch_recon = model(image_batch)
 
             # Reconstruction Error
-            if model == 'vae':
+            if args.model == 'vae':
                 loss = VAE.vae_loss(image_batch_recon, image_batch, latent_mu, latent_logvar)
             else:
                 loss = F.binary_cross_entropy(image_batch_recon, image_batch)
@@ -217,7 +217,7 @@ def main():
 
         with torch.no_grad():
             images = images.to(device)
-            if model == 'vae':
+            if args.model == 'vae':
                 images, _, _ = model(images)
             else:
                 images=model(images)
@@ -248,14 +248,14 @@ def main():
         with torch.no_grad():
             # latent vector of first image
             img1 = img1.to(device)
-            if model == 'vae':
+            if args.model == 'vae':
                 latent_1, _ = model.encoder(img1)
             else:
                 latent_1 = model.encoder(img1)
 
             # latent vector of second image
             img2 = img2.to(device)
-            if model == 'vae':
+            if args.model == 'vae':
                 latent_2, _ = model.encoder(img2)
             else:
                 latent_2 = model.encoder(img2)
@@ -298,7 +298,7 @@ def main():
     wandb.save('Interpolate_in_Latent_Space.png')
 
     # Sample Latent Vector from Prior (VAE as Generator)
-    if model == 'vae':
+    if args.model == 'vae':
         with torch.no_grad():
 
             # sample latent vectors from the normal distribution
@@ -317,7 +317,7 @@ def main():
         None
 
     # Random Latent Vector (Autoencoder as Generator)
-    if model == 'autoencoder':
+    if args.model == 'autoencoder':
         with torch.no_grad():
             # approx. fit a multivariate Normal distribution (with diagonal cov.) to the latent vectors of a random
             # part of the test set.
@@ -348,7 +348,7 @@ def main():
 
     # Show 2D Latent Space
     # load a network that was trained with a 2d latent space
-    if model == 'vae':
+    if args.model == 'vae':
         if latent_dims != args.latent_dims:
             print('Please change the parameters to two latent dimensions.')
 
