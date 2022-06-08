@@ -101,10 +101,17 @@ def main():
     """
     if args.dataset in ["mnist", "fashion-mnist"]:
         encoder_out_size = 3 * 3
+        img_size = 24
+        out = 24//2//2//2
     elif args.dataset in ["cifar"]:
         encoder_out_size = 4*4
+        img_size = 32
+        out = 32//2//2//2
     elif args.dataset in ["stl"]:
         encoder_out_size = 12*12
+        img_size = 96
+        out = 96//2//2//2
+        print(f"out: {out}")
 
     encoder_type = args.encoder
     # model
@@ -118,8 +125,8 @@ def main():
     num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"Number of parameters: {num_params}")
 
-    summary(model.encoder.features, (colour_channels, encoder_out_size, encoder_out_size))
-    summary(model.decoder.deconvolution, (512, 12, 12))
+    summary(model.encoder.features, (colour_channels, img_size, img_size))
+    summary(model.decoder.deconvolution, (512, out, out))
 
     optimizer = optim.Adam(params=model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
 
