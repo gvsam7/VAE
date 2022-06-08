@@ -5,7 +5,7 @@ from coders.DecoderLayer import Deconvolution, Deconvolution2
 class Decoder(nn.Module):
     def __init__(self, colour_channels, c, encoder_out_size, latent_dims):
         super(Decoder, self).__init__()
-        self.fc = nn.Linear(in_features=c * 16, out_features=c * 16 * encoder_out_size.pow(2))
+        self.fc = nn.Linear(in_features=c * 16, out_features=c * 16 * encoder_out_size)
         self.deconvolution = nn.Sequential(
             Deconvolution2(in_channels=c * 16, out_channels=c * 8, kernel_size=3, output_padding=1, padding=1,
                            stride=2),  # 4x4 => 8x8

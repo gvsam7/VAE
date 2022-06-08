@@ -102,9 +102,9 @@ def main():
     if args.dataset in ["mnist", "fashion-mnist"]:
         encoder_out_size = 3 * 3
     elif args.dataset in ["cifar"]:
-        encoder_out_size = 4
+        encoder_out_size = 4*4
     elif args.dataset in ["stl"]:
-        encoder_out_size = 12
+        encoder_out_size = 12*12
 
     encoder_type = args.encoder
     # model
