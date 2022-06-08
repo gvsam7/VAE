@@ -27,7 +27,7 @@ class Decoder(nn.Module):
 
     def forward(self, x):
         x = self.fc(x)
-        x = x.reshape(x.shape[0], -1, 4, 4)
+        x = x.reshape(x.shape[0], -1, 12, 12)
         # x = x.view(x.size(0), capacity*16, 4, 4) # unflatten batch of feature vectors to a batch of multi-channel feature maps
         x = self.deconvolution(x)
         return x
