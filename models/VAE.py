@@ -11,17 +11,17 @@ variational_beta = 1
 
 
 class VAE(nn.Module):
-    def __init__(self, encoder_type, color_channels, c, encoder_out_size, latent_dims):
+    def __init__(self, encoder_type, colour_channels, c, encoder_out_size, latent_dims):
         super(VAE, self).__init__()
         if encoder_type == 'encoder':
-            self.encoder = Encoder(color_channels, c, encoder_out_size, latent_dims)
+            self.encoder = Encoder(colour_channels, c, encoder_out_size, latent_dims)
         elif encoder_type == 'gabor2encoder':
-            self.encoder = Gabor2Encoder(color_channels, c, encoder_out_size, latent_dims)
+            self.encoder = Gabor2Encoder(colour_channels, c, encoder_out_size, latent_dims)
         elif encoder_type == 'gabor3encoder':
-            self.encoder = Gabor3Encoder(color_channels, c, encoder_out_size, latent_dims)
+            self.encoder = Gabor3Encoder(colour_channels, c, encoder_out_size, latent_dims)
         else:
-            self.encoder = GaborEncoder(color_channels, c, encoder_out_size, latent_dims)
-        self.decoder = Decoder(color_channels, c, encoder_out_size, latent_dims)
+            self.encoder = GaborEncoder(colour_channels, c, encoder_out_size, latent_dims)
+        self.decoder = Decoder(colour_channels, c, encoder_out_size, latent_dims)
 
     def forward(self, x):
         latent_mu, latent_logvar = self.encoder(x)

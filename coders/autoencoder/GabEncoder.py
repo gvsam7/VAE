@@ -3,10 +3,10 @@ from coders.EncoderLayer import MixPool, GaborConv2d
 
 
 class GabEncoder(nn.Module):
-    def __init__(self, color_channels, c, encoder_out_size, latent_dims):
+    def __init__(self, colour_channels, c, encoder_out_size, latent_dims):
         super(GabEncoder, self).__init__()
         self.features = nn.Sequential(
-            GaborConv2d(in_channels=3, out_channels=c, kernel_size=3, padding=1, stride=1),  # 32x32 => 16x16
+            GaborConv2d(in_channels=colour_channels, out_channels=c, kernel_size=3, padding=1, stride=1),  # 32x32 => 16x16
             nn.ReLU(inplace=True),
             MixPool(2, 2, 0, 1),
             nn.BatchNorm2d(c),
@@ -17,11 +17,11 @@ class GabEncoder(nn.Module):
             nn.ReLU(inplace=3),
             MixPool(2, 2, 0, 0.6),
             nn.BatchNorm2d(c * 4),
-            nn.Conv2d(in_channels=c * 4, out_channels=c * 8, kernel_size=3, padding=1),
+            nn.Conv2d(in_channels=c * 4, out_channels=c * 8, kernel_size=3, padding=1),  # 8x8 => 4x4
             nn.ReLU(inplace=True),
             MixPool(2, 2, 0, 0.2),
             nn.BatchNorm2d(c * 8),
-            nn.Conv2d(in_channels=c * 8, out_channels=c * 16, kernel_size=3, padding=1, stride=1),  # 8x8 => 4x4
+            nn.Conv2d(in_channels=c * 8, out_channels=c * 16, kernel_size=3, padding=1, stride=1),
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(c * 16)
         )

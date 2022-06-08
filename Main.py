@@ -36,7 +36,7 @@ def arguments():
     parser.add_argument("--learning_rate", type=int, default=3e-04)
     parser.add_argument("--weight_decay", type=int, default=1e-5)
     parser.add_argument("--variational_beta", type=int, default=1)
-    parser.add_argument("--color_channels", type=int, default=3)
+    parser.add_argument("--colour_channels", type=int, default=3)
     parser.add_argument("--dataset", default="cifar", help="mnist = MNIST, fashion-mnist = FashionMNIST,"
                                                            "cifar = CIFAR10, stl = STL10")
     parser.add_argument("--num_workers", type=int, default=0)
@@ -89,37 +89,37 @@ def main():
 
     # Colour Channels
     if args.dataset in ["mnist", "fashion-mnist"]:
-        color_channels = 1
+        colour_channels = 1
     else:
-        color_channels = 3
+        colour_channels = 3
 
     # Image Resolution
     """
-    mnist, fashion-mnist: 28->14->7
-    cifar: 32->16->8
-    stl: 96->48->24
+    mnist, fashion-mnist: 28->14->7->3
+    cifar: 32->16->8->4
+    stl: 96->48->24->12
     """
     if args.dataset in ["mnist", "fashion-mnist"]:
-        encoder_out_size = 7 * 7
+        encoder_out_size = 3 * 3
     elif args.dataset in ["cifar"]:
-        encoder_out_size = 8 * 8
+        encoder_out_size = 4
     elif args.dataset in ["stl"]:
-        encoder_out_size = 24 * 24
+        encoder_out_size = 12
 
     encoder_type = args.encoder
     # model
     if args.model == 'vae':
-        model = VAE(encoder_type, color_channels, c, encoder_out_size, latent_dims)
+        model = VAE(encoder_type, colour_channels, c, encoder_out_size, latent_dims)
     else:
-        model = Autoencoder(encoder_type, color_channels, c, encoder_out_size, latent_dims)
+        model = Autoencoder(encoder_type, colour_channels, c, encoder_out_size, latent_dims)
     print(f"model is {args.model}")
 
     model = model.to(device)
     num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"Number of parameters: {num_params}")
 
-    summary(model.encoder.features, (3, 32, 32))
-    summary(model.decoder.deconvolution, (512, 4, 4))
+    summary(model.encoder.features, (colour_channels, encoder_out_size, encoder_out_size))
+    summary(model.decoder.deconvolution, (512, 12, 12))
 
     optimizer = optim.Adam(params=model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
 

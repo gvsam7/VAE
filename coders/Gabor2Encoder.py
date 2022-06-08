@@ -3,10 +3,10 @@ from coders.EncoderLayer import MixPool, Gabor2Conv2d
 
 
 class Gabor2Encoder(nn.Module):
-    def __init__(self, color_channels, c, encoder_out_size, latent_dims):
+    def __init__(self, colour_channels, c, encoder_out_size, latent_dims):
         super(Gabor2Encoder, self).__init__()
         self.features = nn.Sequential(
-            Gabor2Conv2d(in_channels=3, out_channels=c, kernel_size=3, padding=1, stride=1),  # 32x32 => 16x16
+            Gabor2Conv2d(in_channels=colour_channels, out_channels=c, kernel_size=3, padding=1, stride=1),  # 32x32 => 16x16
             nn.ReLU(inplace=True),
             MixPool(2, 2, 0, 1),
             nn.BatchNorm2d(c),

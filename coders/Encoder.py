@@ -3,10 +3,10 @@ from coders.EncoderLayer import Conv1, Conv2
 
 
 class Encoder(nn.Module):
-    def __init__(self, color_channels, c, encoder_out_size, latent_dims):
+    def __init__(self, colour_channels, c, encoder_out_size, latent_dims):
         super(Encoder, self).__init__()
         self.features = nn.Sequential(
-            Conv2(in_channels=3, out_channels=c, kernel_size=3, padding=1, stride=1),
+            Conv2(in_channels=colour_channels, out_channels=c, kernel_size=3, padding=1, stride=1),
             Conv1(in_channels=c, out_channels=c * 2, kernel_size=3, padding=1, stride=1),
             Conv2(in_channels=c * 2, out_channels=c * 4, kernel_size=3, padding=1, stride=1),
             Conv2(in_channels=c * 4, out_channels=c * 8, kernel_size=3, padding=1, stride=1),
