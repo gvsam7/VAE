@@ -5,7 +5,10 @@ from coders.DecoderLayer import ResDeconv
 class ResDecoder(nn.Module):
     def __init__(self, colour_channels, c, encoder_out_size, latent_dims):
         super(ResDecoder, self).__init__()
-        self.fc = nn.Linear(in_features=latent_dims, out_features=c*16*3*3)  # encoder_out_size)
+        self.fc = nn.Sequential(
+            nn.Linear(in_features=latent_dims, out_features=c * 16 * 3 * 3),  # encoder_out_size),
+            nn.ReLU(inplace=True)
+        )
         self.deconvolution = nn.Sequential(
             ResDeconv(in_channels=c * 16, out_channels=c * 8, kernel_size=3, padding=1, stride=1),  # 4x4 => 8x8
             ResDeconv(in_channels=c * 8, out_channels=c * 4, kernel_size=3, padding=1, stride=1),
