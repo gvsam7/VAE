@@ -37,6 +37,30 @@ class Conv2(nn.Module):
         return x
 
 
+class ResConv(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size, padding, stride):
+        super(ResConv, self).__init__()
+        self.conv = nn.Sequential(
+            nn.Conv2d(in_channels, out_channels//2, kernel_size=kernel_size, padding=padding, stride=stride),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2),
+            nn.BatchNorm2d(out_channels//2),
+            nn.Conv2d(in_channels=out_channels//2, out_channels=out_channels, kernel_size=kernel_size, padding=padding, stride=stride),
+            nn.BatchNorm2d(out_channels)
+        )
+        self.conv2 = nn.Sequential(
+            nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size, padding=padding),
+            nn.MaxPool2d(2, 2)
+        )
+
+    def forward(self, x):
+        skip = self.conv2(x)
+
+        x = self.conv(x)
+        x = F.relu(x + skip)
+        return x
+
+
 class MixPool(nn.Module):
     def __init__(self, kernel_size, stride, padding, alpha):
         super(MixPool, self).__init__()

@@ -30,7 +30,7 @@ import wandb
 def arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", type=int, default=10)
-    parser.add_argument("--latent_dims", type=int, default=12)
+    parser.add_argument("--latent_dims", type=int, default=12)  # 512
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--capacity", type=int, default=32)
     parser.add_argument("--learning_rate", type=int, default=3e-04)
@@ -42,9 +42,10 @@ def arguments():
     parser.add_argument("--num_workers", type=int, default=0)
     parser.add_argument("--device", type=int, default=0)
     parser.add_argument("--model", default="vae", help="vae=VAE, autoencoder=Autoencoder")
+    parser.add_argument("--decoder", default="decoder", help="decoder=Decoder, resdecoder=ResDecoder")
     parser.add_argument("--encoder", default="encoder", help="encoder=Encoder, gaborencoder=GaborEncoder, "
                                                              "gabor2encoder=Gabor2Encoder, gabor3encoder=Gabor3Encoder,"
-                                                             "gabencoder=GabEncoder")
+                                                             "gabencoder=GabEncoder, resencoder=ResEncoder")
 
     return parser.parse_args()
 
@@ -114,9 +115,10 @@ def main():
         print(f"out: {out}")
 
     encoder_type = args.encoder
+    decoder_type = args.decoder
     # model
     if args.model == 'vae':
-        model = VAE(encoder_type, colour_channels, c, encoder_out_size, latent_dims)
+        model = VAE(encoder_type, decoder_type, colour_channels, c, encoder_out_size, latent_dims)
     else:
         model = Autoencoder(encoder_type, colour_channels, c, encoder_out_size, latent_dims)
     print(f"model is {args.model}")
