@@ -43,12 +43,14 @@ class ResDeconv(nn.Module):
                       stride=stride, padding=padding),
             nn.BatchNorm2d(out_channels)
         )
-        self.deconvolution2 = nn.Conv2d(in_channels=in_channels, out_channels=out_channels,
-                                        kernel_size=kernel_size, stride=stride, padding=padding)
-        self.UpNN = nn.Upsample(scale_factor=2, mode='nearest')
+        self.deconvolution2 = nn.Sequential(
+            nn.Conv2d(in_channels=in_channels, out_channels=out_channels,
+                      kernel_size=kernel_size, stride=stride, padding=padding),
+            nn.Upsample(scale_factor=2, mode='nearest')
+        )
 
     def forward(self, x):
-        skip = self.deconvolution2(self.UpNN(x))
+        skip = self.deconvolution2(x)
 
         x = self.deconvolution(x)
         x = F.relu(x + skip)
