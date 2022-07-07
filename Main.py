@@ -129,6 +129,8 @@ def main():
 
     summary(model.encoder.features, (colour_channels, img_size, img_size))
     summary(model.decoder.deconvolution, (512, out, out))
+    print("Model Summary: ")
+    summary(model, (colour_channels, img_size, img_size))
 
     optimizer = optim.Adam(params=model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
 
@@ -212,6 +214,19 @@ def main():
     are performed. 
     """
     plt.ion()
+
+    def plot_latent(model, test_loader, num_batches):
+        for i, (x, y) in enumerate(test_loader):
+            z = model.encoder(x.to(device))
+            z = z.to('cpu').detach().numpy()
+            plt.scatter(z[:, 0], z[:, 1], c=y, cmap='tab10')
+            if i > num_batches:
+                plt.colorbar()
+                break
+
+    plot_latent(model, test_loader)
+    plt.savefig("Scatter Plot", bbox_inches='tight')
+    wandb.save('Scatter Plot.png')
 
     def to_img(x):
         x = x.clamp(0, 1)
@@ -366,12 +381,12 @@ def main():
             # create a sample grid in 2d latent space
             latent_x = np.linspace(-1.5, 1.5, 20)
             latent_y = np.linspace(-1.5, 1.5, 20)
-            latents = torch.FloatTensor(len(latent_y), len(latent_x), args.latent_dims)
+            latents = torch.FloatTensor(len(latent_y), len(latent_x), 2)  # args.latent_dims)
             for i, lx in enumerate(latent_x):
                 for j, ly in enumerate(latent_y):
                     latents[j, i, 0] = lx
                     latents[j, i, 1] = ly
-            latents = latents.view(-1, args.latent_dims)  # flatten grid into a batch
+            latents = latents.view(-1, 2)  # args.latent_dims)  # flatten grid into a batch
 
             # reconstruct images from the latent vectors
             latents = latents.to(device)
