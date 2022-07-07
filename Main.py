@@ -215,7 +215,7 @@ def main():
     """
     plt.ion()
 
-    def plot_latent(model, test_loader, num_batches):
+    def plot_latent(model, test_loader, num_batches=100):
         for i, (x, y) in enumerate(test_loader):
             z = model.encoder(x.to(device))
             z = z.to('cpu').detach().numpy()
