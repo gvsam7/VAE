@@ -220,7 +220,7 @@ def main():
             z = model.encoder(x.to(device))
             # z = z.to('cpu').detach().numpy()
             z = torch.cat(z).to('cpu').detach().numpy()
-            plt.scatter(z[:, 0], z[:, 1], c=y, cmap='tab10')
+            plt.scatter(z[:, 0], z[:, 1], cmap='tab10')
             if i > num_batches:
                 plt.colorbar()
                 break
