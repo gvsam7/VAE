@@ -218,8 +218,8 @@ def main():
     def plot_latent(model, test_loader, num_batches=100):
         for i, (x, y) in enumerate(test_loader):
             z = model.encoder(x.to(device))
-            # z = z.to('cpu').detach().numpy()
-            z = torch.cat(z).to('cpu').detach().numpy()
+            z = z.to('cpu').detach().numpy()
+            # z = torch.cat(z).to('cpu').detach().numpy()
             plt.scatter(z[:, 0], z[:, 1], cmap='tab10')
             if i > num_batches:
                 plt.colorbar()
