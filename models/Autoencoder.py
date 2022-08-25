@@ -10,10 +10,11 @@ class Autoencoder(nn.Module):
         super(Autoencoder, self).__init__()
         if encoder_type == 'encoder':
             self.encoder = Encoder(colour_channels, c, encoder_out_size, latent_dims)
-        elif encoder_type == 'gmacuencoder':
+        elif encoder_type == 'gmacencoder':
             self.encoder = GMACEncoder(colour_channels, c, encoder_out_size, latent_dims)
         else:
             self.encoder = GabEncoder(colour_channels, c, encoder_out_size, latent_dims)
+        print(encoder_type)
         self.decoder = Decoder(colour_channels, c, encoder_out_size, latent_dims)
 
     def forward(self, x):
