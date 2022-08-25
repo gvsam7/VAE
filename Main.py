@@ -45,7 +45,8 @@ def arguments():
     parser.add_argument("--decoder", default="decoder", help="decoder=Decoder, resdecoder=ResDecoder")
     parser.add_argument("--encoder", default="encoder", help="encoder=Encoder, gaborencoder=GaborEncoder, "
                                                              "gabor2encoder=Gabor2Encoder, gabor3encoder=Gabor3Encoder,"
-                                                             "gabencoder=GabEncoder, resencoder=ResEncoder")
+                                                             "gabencoder=GabEncoder, resencoder=ResEncoder,"
+                                                             "gmacencoder=GMACEncoder")
 
     return parser.parse_args()
 
@@ -218,9 +219,12 @@ def main():
     def plot_latent(model, test_loader, num_batches=100):
         for i, (x, y) in enumerate(test_loader):
             z = model.encoder(x.to(device))
-            z = z.to('cpu').detach().numpy()
-            # z = torch.cat(z).to('cpu').detach().numpy()
-            plt.scatter(z[:, 0], z[:, 1], c=y, cmap='tab10')
+            if args.model == 'vae':
+                z = torch.cat(z).to('cpu').detach().numpy()
+                plt.scatter(z[:, 0], z[:, 1], cmap='tab10')
+            else:
+                z = z.to('cpu').detach().numpy()
+                plt.scatter(z[:, 0], z[:, 1], c=y, cmap='tab10')
             if i > num_batches:
                 plt.colorbar()
                 break
